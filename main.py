@@ -4,6 +4,7 @@ import speech_recognition as sr
 import pyttsx3
 
 recognizer = sr.Recognizer()
+voice = pyttsx3.init()
 
 def load_knowledge_base(file_path: str) -> dict:
     with open(file_path, 'r') as file:
@@ -32,7 +33,7 @@ def chat_bot():
         try:
             with sr.Microphone() as source:
                 print("Listening...")
-                recognizer.adjust_for_ambient_noise(source, duration=0.2)  #     Adjust for ambient noise
+                recognizer.adjust_for_ambient_noise(source, duration=0.8)  # Adjust for ambient noise
                 audio = recognizer.listen(source)  # Listen for the user's input
     
                 text = recognizer.recognize_google(audio)
@@ -47,21 +48,36 @@ def chat_bot():
             best_match: str | None = find_best_match(text, [q["question"]     for q in knowledge_base["questions"]])
     
             if best_match:
-                answer: str = get_answer_for_question(best_match,     knowledge_base)
+                answer: str = get_answer_for_question(best_match, knowledge_base)
                 print(f'Bot: {answer}')
+                voice.say(answer)
+                voice.runAndWait()
             else:
-                print('Bot : I don\'t know the answer. Can you teach me?')
-                new_answer: str = input('Type the answer or "skip" to skip: ')
+                voice.say('I don\'t know the answer. Can you teach me?')
+                voice.runAndWait()
+                print('Say the answer or say "skip" to skip: ')
+                with sr.Microphone() as source:
+                    print("Listening...")
+                    recognizer.adjust_for_ambient_noise(source, duration=0.8)  # Adjust for ambient noise
+                    audio = recognizer.listen(source) 
+
+                    new_answer = recognizer.recognize_google(audio)
+                    new_answer = new_answer.lower()
+    
+                print(f"You: {new_answer}")
     
                 if new_answer.lower() != 'skip':
-                    knowledge_base["questions"].append({"question": text,     "answer": new_answer})
+                    knowledge_base["questions"].append({"question": text, "answer": new_answer})
                     save_knowledge_base('knowledge_base.json', knowledge_base)
                     print('Bot: Thank you! I learnt a new response!')
-
-        except sr.UnknownValueError:
-            print("Sorry, I did not understand that.")
+                    voice.say("Thank you! I learnt a new response!")
+                    voice.runAndWait()
             continue
 
+        except sr.UnknownValueError:
+            voice.say("Sorry, I did not understand that.")
+            voice.runAndWait() 
+            continue
 
 if __name__ == '__main__':
     chat_bot()
