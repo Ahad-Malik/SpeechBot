@@ -20,7 +20,7 @@ It also incorporates *fuzzy matching* to handle slight variations in user-phrase
 
 1. Install required libraries: `speech_recognition`, `pyttsx3`
 2. Create a JSON file (`knowledge_base.json`) with example questions and answers.
-3. Run the script: `python chat_bot.py`
+3. Run the script: `python main.py`
 4. Start a conversation! The chatbot will listen for your questions and provide responses.
 
 ## Further Enhancements
